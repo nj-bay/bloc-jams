@@ -123,16 +123,63 @@ var albumMarconi = {
     ]
 };
 
+var currentlyPlayingSong = null;
+
 var createSongRow = function(songNumber, songName, songLength) {
     var template =
         '<tr>'
-      + '  <td class="col-md-1">' + songNumber + '</td>'
+      + '  <td class="song-number col-md-1">' + songNumber + '</td>'
       + '  <td class="col-md-9">' + songName + '</td>'
       + '  <td class="col-md-2">' + songLength + '</td>'
       + '</tr>'
       ;
 
-    return $(template);
+    // Instead of returning the row immediately, we'll attach hover
+   // functionality to it first.
+    var $row = $(template);
+
+    var onHover = function(event) {
+      var songNumberCell = $(this).find('.song-number');
+      var songNumber = songNumberCell.data('song-number');
+      if (songNumberCell !== currentlyPlayingSong) {
+        songNumberCell.html('<a class="album-song-button"><i class="fa fa-play"></i></a>');
+      }
+    };
+
+    var offHover = function(event) {
+      var songNumberCell = $(this).find('.song-number');
+      var songNumber = songNumberCell.data('song-number');
+      if (songNumberCell !== currentlyPlayingSong) {
+        songNumberCell.html(songNumber);
+      }
+    };
+
+    var clickHandler = function(event) {
+        var songNumber = $(this).data('song-number')
+
+        if ( currentlyPlayingSong !== null ) {
+              // Revert to song number for currently playing song because user started playing new song.
+              var currentlyPlayingCell = $('.song-number[data-song-number="' + currentlyPlayingSong + '"]');
+              currentlyPlayingCell.html(currentlyPlayingSong);
+        }
+
+        if ( currentlyPlayingSong !== songNumber ) {
+            // Switch from Play -> Pause button to indicate new song is playing.
+            $(this).html('<a class="album-song-button"><i class="fa fa-pause></i></a>');
+            currentlyPlayingSong = songNumber;
+        }
+        else if ( currentlyPlayingSong == songNumber ) {
+         // Switch from Pause -> Play button to pause current playing song
+         $(this).html('<a class="album-song-button"><i class="fa fa-play"></i></a>');
+         currentlyPlayingSong = null;
+
+        }
+    };
+
+    $row.find('.song-number').click(clickHandler);
+    $row.hover(onHover, offHover);
+    return $row;
+
 };
 
 var changeAlbumView = function(album) {
@@ -184,6 +231,7 @@ if (document.URL.match(/\/album.html/)) {
 ;require.register("scripts/app", function(exports, require, module) {
 require("./landing");
 require("./collection");
+require("./album");
 
 });
 
@@ -191,7 +239,9 @@ require("./collection");
 var buildAlbumThumbnail = function() {
     var template =
         '<div class="collection-album-container col-md-2">'
-      + '     <img src = "/images/album-placeholder.png"/>'
+      + '  <div class="collection-album-image-container">'
+      + '    <img src="/images/album-placeholder.png"/>'
+      + '  </div>'
       + '     <div class="caption album-collection-info">'
       + '       <p>'
       + '           <a class="album-name" href="/album.html">Album Name </a>'
@@ -207,6 +257,25 @@ var buildAlbumThumbnail = function() {
     return $(template);
 };
 
+var buildAlbumOverlay = function(albumURL) {
+  var template =
+      '<div class="collection-album-image-overlay">'
+    + '  <div class="collection-overlay-content">'
+    + '    <a class="collection-overlay-button" href="' + albumURL + '">'
+    + '      <i class="fa fa-play"></i>'
+    + '    </a>'
+    + '    &nbsp;'
+    + '    <a class="collection-overlay-button">'
+    + '      <i class="fa fa-plus"></i>'
+    + '    </a>'
+    + '  </div>'
+    + '</div>'
+    ;
+  return $(template);
+
+};
+
+
 var updateCollectionView = function() {
     var $collection = $(".collection-container .row");
     $collection.empty();
@@ -215,6 +284,16 @@ var updateCollectionView = function() {
         var $newThumbnail = buildAlbumThumbnail();
         $collection.append($newThumbnail);
     }
+
+    var onHover = function(event) {
+      $(this).append(buildAlbumOverlay("/album.html"));
+    };
+
+    var offHover = function(event) {
+      $(this).find('.collection-album-image-overlay').remove();
+    }
+
+    $collection.find('.collection-album-image-container').hover(onHover);
 };
 
 
