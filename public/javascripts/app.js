@@ -213,6 +213,33 @@ var changeAlbumView = function(album) {
 
 };
 
+var setupSeekBars = function() {
+
+  $seekBars = $('.player-bar .seek-bar');
+  $seekBars.click(function(event) {
+    updateSeekPercentage($(this), event);
+  });
+
+  $seekBars.find('.thumb').mousedown(function(event){
+    var $seekBar = $(this).parent();
+
+    $seekBar.addClass('no-animate');
+
+    $(document).bind('mousemove.thumb', function(event){
+      updateSeekPercentage($seekBar, event);
+    });
+
+    //cleanup
+    $(document).bind('mouseup.thumb', function(){
+      $seekBar.removeClass('no-animate');
+
+      $(document).unbind('mousemove.thumb');
+      $(document).unbind('mouseup.thumb');
+    });
+
+  });
+
+};
 // This 'if' condition is used to prevent the jQuery modifications
 // from happening on non-Album view pages.
 //  - Use a regex to validate that the url has "/album" in its path.
@@ -221,6 +248,7 @@ if (document.URL.match(/\/album.html/)) {
  $(document).ready(function() {
 
     changeAlbumView(albumPicasso);
+    setupSeekBars();
 
   });
 
