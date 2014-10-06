@@ -1,18 +1,3 @@
-// Example Album
-var albumPicasso = {
-    name: 'The Colors',
-    artist: 'Pablo Picasso',
-    label: 'Cubism',
-    year: '1881',
-    albumArtUrl: '/images/album-placeholder.png',
-    songs: [
-        { name: 'Blue', length: '4:26' },
-        { name: 'Green', length: '3:14' },
-        { name: 'Red', length: '5:01' },
-        { name: 'Pink', length: '3:21' },
-        { name: 'Magenta', length: '2:15' },
-    ]
-};
 
 // Another Example Album
 var albumMarconi = {
