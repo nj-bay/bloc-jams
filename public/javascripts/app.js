@@ -351,9 +351,14 @@ blocJams.controller('Album.controller', ['$scope', 'SongPlayer', function($scope
 
 blocJams.controller('PlayerBar.controller', ['$scope', 'SongPlayer', function($scope, SongPlayer) {
   $scope.songPlayer = SongPlayer;
+
 }]);
 
 blocJams.service('SongPlayer', function() {
+  var trackIndex = function(album, song) {
+    return album.songs.indexOf(song);
+  };
+
   return {
     currentSong: null,
     currentAlbum: null,
@@ -365,12 +370,34 @@ blocJams.service('SongPlayer', function() {
     pause: function() {
       this.playing = false;
     },
+    next: function() {
+      var currenttrackIndex = trackIndex(this.currentAlbum, this.currentSong);
+      currenttrackIndex++;
+      if (currenttrackIndex >= this.currentAlbum.songs.length) {
+        currenttrackIndex = 0;
+      }
+      this.currentSong = this.currentAlbum.songs[currenttrackIndex];
+    },
+      previous: function() {
+        var currenttrackIndex = trackIndex(this.currentAlbum, this.currentSong);
+        currenttrackIndex--;
+        if (currenttrackIndex < 0) {
+          currenttrackIndex = this.currentAlbum.songs.length - 1;
+        }
+
+        this.currentSong = this.currentAlbum.songs[currenttrackIndex];
+      },
+
     setSong: function(album, song) {
       this.currentAlbum = album;
       this.currentSong = song;
     }
   };
 });
+
+// blocJams.service('ConsoleLogger', function() {
+//   console.log("ErMahgerd!");
+// });
 
 });
 
